@@ -1,6 +1,7 @@
 package library.config;
 
 import java.util.ArrayList;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -41,7 +42,9 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException() {
+    ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException(
+            HttpMessageNotReadableException ex) {
+        System.err.println(ex.getMessage());
         var response = new ErrorResponse(HttpStatus.BAD_REQUEST, "JSON parse error");
         return ResponseEntity
                 .status(response.getStatus())
@@ -51,6 +54,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatchException() {
         var response = new ErrorResponse(HttpStatus.BAD_REQUEST, "BAD REQUEST");
+        return ResponseEntity
+                .status(response.getStatus())
+                .body(response);
+    }
+
+    @ExceptionHandler(DataAccessException.class)
+    ResponseEntity<ErrorResponse> handleDataAccessException() {
+        var response = new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL SERVER ERROR");
         return ResponseEntity
                 .status(response.getStatus())
                 .body(response);

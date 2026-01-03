@@ -22,13 +22,7 @@ public class JDBCBookRepository implements BookRepository {
             String title = rs.getString(2);
             String description = rs.getString(3);
 
-            List<Long> authorIds = jdbcTemplate.query(
-                    "SELECT Author_id, Book_id FROM AuthorBook WHERE Book_id = ?",
-                    new Object[] {id},
-                    new int[] {Types.INTEGER},
-                    (resSet, rn) -> resSet.getLong(1));
-
-            return new Book(id, title, description, authorIds);
+            return new Book(id, title, description, null);
         }
     };
 
@@ -46,16 +40,26 @@ public class JDBCBookRepository implements BookRepository {
 
         List<Book> result = jdbcTemplate.query(sql, args, argTypes, bookRowMapper);
 
-        return result.stream().findFirst();
+        if (result.isEmpty()) {
+            return Optional.ofNullable(null);
+        }
+
+        Book book = result.getFirst();
+        book.setAuthorIds(getBookAuthors(book.getId()));
+
+        return Optional.of(book);
     }
 
     @Override
     public List<Book> getAllBooks() {
         var sql = "SELECT id, title, description FROM Book";
 
-        List<Book> result = jdbcTemplate.query(sql, bookRowMapper);
+        List<Book> books = jdbcTemplate.query(sql, bookRowMapper);
+        for (Book book : books) {
+            book.setAuthorIds(getBookAuthors(book.getId()));
+        }
 
-        return result;
+        return books;
     }
 
     @Override
@@ -89,6 +93,16 @@ public class JDBCBookRepository implements BookRepository {
         int[] argTypes = {Types.VARCHAR, Types.VARCHAR, Types.INTEGER};
 
         return jdbcTemplate.update(sql, args, argTypes);
+    }
+
+    @Override
+    public List<Long> getBookAuthors(long bookId) {
+        var sql = "SELECT Author_id, Book_id FROM AuthorBook WHERE Book_id = ?";
+        Object[] args = {bookId};
+        int[] argTypes = {Types.INTEGER};
+        RowMapper<Long> authorIdRowMapper = (rs, rowNum) -> rs.getLong(1);
+
+        return jdbcTemplate.query(sql, args, argTypes, authorIdRowMapper);
     }
 
     @Override

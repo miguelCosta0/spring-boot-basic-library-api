@@ -33,6 +33,11 @@ public interface BookRepository {
     public int deleteBook(long id);
 
     /**
+     * @return list of Author ids
+     */
+    public List<Long> getBookAuthors(long bookId);
+
+    /**
      * @return number of affected rows
      */
     public int linkBookAndAuthor(long bookId, long authorId);

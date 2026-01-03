@@ -1,9 +1,11 @@
 package library.model;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
 
@@ -13,23 +15,17 @@ public class Book {
     }
 
     @Null private Long id;
-    @NotNull private String title;
+    @NotBlank private String title;
     private String description;
-    private List<Long> authorIds = new ArrayList<>();
-
-    public Book() {}
+    private List<@NotNull Long> authorIds = new ArrayList<>();
 
     public Book(Long id, String title, String description, List<Long> authorIds) {
-        if (title == null) {
-            throw new NullPointerException("Title can't be null."); // TODO fazer Exception direito
-        }
         this.id = id;
         this.title = title;
         this.description = description;
         if (authorIds != null) {
-            authorIds.addAll(authorIds);
+            this.authorIds.addAll(authorIds);
         }
-        // this.authorIds = new ArrayList<>(authorIds == null ? authorIds);
     }
 
     @JsonView(PublicView.class)
@@ -49,7 +45,7 @@ public class Book {
 
     @JsonView(PublicView.class)
     public List<Long> getAuthorIds() {
-        return authorIds;
+        return Collections.unmodifiableList(authorIds);
     }
 
     public void setId(Long id) {
@@ -65,7 +61,8 @@ public class Book {
     }
 
     public void setAuthorIds(List<Long> authorIds) {
-        this.authorIds = authorIds;
+        this.authorIds.clear();
+        this.authorIds.addAll(authorIds);
     }
 
 }

@@ -3,7 +3,8 @@ package library.model;
 import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonView;
-import jakarta.annotation.Nonnull;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
 import library.exception.InvalidCpfException;
 import library.valueObject.Cpf;
@@ -13,12 +14,12 @@ public class Author {
     public interface PublicView {
     }
 
-    @Null private long id;
-    @Nonnull private String name;
-    @Nonnull private Cpf cpf;
+    @Null private Long id;
+    @NotBlank private String name;
+    @NotNull private Cpf cpf;
     private LocalDate dateOfBirth;
 
-    public Author(long id, String name, String cpf, LocalDate dateOfBirth)
+    public Author(Long id, String name, String cpf, LocalDate dateOfBirth)
             throws InvalidCpfException {
         this.id = id;
         this.name = name;
@@ -27,7 +28,7 @@ public class Author {
     }
 
     @JsonView(PublicView.class)
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
@@ -39,6 +40,10 @@ public class Author {
     @JsonView(PublicView.class)
     public String getCpf() {
         return cpf.toString();
+    }
+
+    public String getRawCpf() {
+        return cpf.getRawCpf();
     }
 
     @JsonView(PublicView.class)

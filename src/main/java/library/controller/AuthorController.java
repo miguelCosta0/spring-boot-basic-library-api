@@ -55,7 +55,8 @@ public class AuthorController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> updateAuthor(@PathVariable long id, @RequestBody Author author) {
+    public ResponseEntity<Void> updateAuthor(@PathVariable long id,
+            @Valid @RequestBody Author author) {
         authorService.updateAuthor(id, author);
         return ResponseEntity
                 .status(HttpStatus.NO_CONTENT)

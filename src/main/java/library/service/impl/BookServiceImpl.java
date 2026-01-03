@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import library.exception.InternalServerException;
 import library.exception.NotFoundException;
 import library.model.Book;
+import library.repository.AuthorRepository;
 import library.repository.BookRepository;
 import library.service.BookService;
 
@@ -15,9 +16,11 @@ import library.service.BookService;
 public class BookServiceImpl implements BookService {
 
     private final BookRepository bookRepository;
+    private final AuthorRepository authorRepository;
 
-    public BookServiceImpl(BookRepository bookRepository) {
+    public BookServiceImpl(BookRepository bookRepository, AuthorRepository authorRepository) {
         this.bookRepository = bookRepository;
+        this.authorRepository = authorRepository;
     }
 
     @Override
@@ -34,7 +37,7 @@ public class BookServiceImpl implements BookService {
     public Book getBook(long id) {
         Optional<Book> book = bookRepository.getBook(id);
         return book
-                .orElseThrow(() -> new NotFoundException("There is no book with such id"));
+                .orElseThrow(() -> new NotFoundException("Book not found"));
     }
 
     @Override
@@ -64,6 +67,11 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public void linkBookAndAuthor(long bookId, long authorId) {
+        if (bookRepository.getBook(bookId).isEmpty())
+            throw new NotFoundException("Book not found");
+        if (authorRepository.getAuthor(authorId).isEmpty())
+            throw new NotFoundException("Author not found");
+
         int res = bookRepository.linkBookAndAuthor(bookId, authorId);
         if (res == 0)
             throw new InternalServerException("Failed to map book-author relationship");
@@ -72,8 +80,14 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public void unlinkBookAndAuthor(long bookId, long authorId) {
+        if (bookRepository.getBook(bookId).isEmpty())
+            throw new NotFoundException("Book not found");
+        if (authorRepository.getAuthor(authorId).isEmpty())
+            throw new NotFoundException("Author not found");
+
         int res = bookRepository.unlinkBookAndAuthor(bookId, authorId);
         if (res == 0)
             throw new InternalServerException("Failed to destroy book-author relationship");
     }
+
 }

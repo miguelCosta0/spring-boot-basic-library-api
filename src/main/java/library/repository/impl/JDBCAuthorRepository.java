@@ -59,7 +59,7 @@ public class JDBCAuthorRepository implements AuthorRepository {
         var sql = """
                 INSERT INTO Author (name, cpf, date_of_birth) VALUES (?, ?, ?)
                 """;
-        Object[] args = {author.getName(), author.getCpf(), author.getDateOfBirth()};
+        Object[] args = {author.getName(), author.getRawCpf(), author.getDateOfBirth()};
         int[] argTypes = {Types.VARCHAR, Types.VARCHAR, Types.DATE};
 
         return jdbcTemplate.update(sql, args, argTypes);

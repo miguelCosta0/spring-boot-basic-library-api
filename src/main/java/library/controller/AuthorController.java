@@ -14,8 +14,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import jakarta.validation.Valid;
 
-import library.DTO.AuthorRequestDTO;
-import library.DTO.AuthorResponseDTO;
+import library.DTO.AuthorCreateRequest;
+import library.DTO.AuthorResponse;
+import library.DTO.AuthorUpdateRequest;
 import library.model.Author;
 import library.model.Book;
 import library.service.AuthorService;
@@ -31,12 +32,12 @@ public class AuthorController {
     }
 
     @GetMapping("")
-    public ResponseEntity<List<AuthorResponseDTO>> getAllAuthors() {
+    public ResponseEntity<List<AuthorResponse>> getAllAuthors() {
         List<Author> authors = authorService.getAllAuthors();
 
-        List<AuthorResponseDTO> authorsResponse = authors
+        List<AuthorResponse> authorsResponse = authors
             .stream()
-            .map(AuthorResponseDTO::from)
+            .map(AuthorResponse::fromAuthor)
             .collect(Collectors.toList());
 
         return ResponseEntity
@@ -45,9 +46,9 @@ public class AuthorController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<AuthorResponseDTO> getAuthor(@PathVariable long id) {
+    public ResponseEntity<AuthorResponse> getAuthor(@PathVariable long id) {
         Author author = authorService.getAuthor(id);
-        AuthorResponseDTO authorResponse = AuthorResponseDTO.from(author);
+        AuthorResponse authorResponse = AuthorResponse.fromAuthor(author);
 
         return ResponseEntity
             .status(HttpStatus.OK)
@@ -55,7 +56,7 @@ public class AuthorController {
     }
 
     @PostMapping("")
-    public ResponseEntity<Void> createAuthor(@Valid @RequestBody AuthorRequestDTO newAuthor) {
+    public ResponseEntity<Void> createAuthor(@Valid @RequestBody AuthorCreateRequest newAuthor) {
         authorService.createAuthor(newAuthor);
         return ResponseEntity
             .status(HttpStatus.CREATED)
@@ -65,7 +66,7 @@ public class AuthorController {
     @PutMapping("/{id}")
     public ResponseEntity<Void> updateAuthor(
         @PathVariable long id,
-        @Valid @RequestBody AuthorRequestDTO author) {
+        @Valid @RequestBody AuthorUpdateRequest author) {
         authorService.updateAuthor(id, author);
         return ResponseEntity
             .status(HttpStatus.NO_CONTENT)

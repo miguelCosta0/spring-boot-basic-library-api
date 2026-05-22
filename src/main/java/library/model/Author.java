@@ -12,8 +12,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 
 import library.exception.InvalidCpfException;
 import library.valueObject.Cpf;
@@ -26,10 +24,8 @@ public class Author {
     @GeneratedValue
     private Long id;
 
-    @NotBlank
     private String name;
 
-    @NotNull
     private Cpf cpf;
 
     @Column(name = "date_of_birth")

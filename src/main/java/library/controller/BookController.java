@@ -14,8 +14,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import jakarta.validation.Valid;
 
-import library.DTO.BookRequestDTO;
-import library.DTO.BookResponseDTO;
+import library.DTO.BookCreateRequest;
+import library.DTO.BookResponse;
+import library.DTO.BookUpdateRequest;
 import library.model.Author;
 import library.model.Book;
 import library.service.BookService;
@@ -31,11 +32,11 @@ public class BookController {
     }
 
     @GetMapping("")
-    public ResponseEntity<List<BookResponseDTO>> getAllBooks() {
+    public ResponseEntity<List<BookResponse>> getAllBooks() {
         List<Book> books = bookService.getAllBooks();
-        List<BookResponseDTO> booksResponse = books
+        List<BookResponse> booksResponse = books
             .stream()
-            .map(BookResponseDTO::from)
+            .map(BookResponse::fromBook)
             .collect(Collectors.toList());
 
         return ResponseEntity
@@ -44,9 +45,9 @@ public class BookController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<BookResponseDTO> getBook(@PathVariable long id) {
+    public ResponseEntity<BookResponse> getBook(@PathVariable long id) {
         Book book = bookService.getBook(id);
-        BookResponseDTO bookResponse = BookResponseDTO.from(book);
+        BookResponse bookResponse = BookResponse.fromBook(book);
 
         return ResponseEntity
             .status(HttpStatus.OK)
@@ -54,7 +55,7 @@ public class BookController {
     }
 
     @PostMapping("")
-    public ResponseEntity<Void> createBook(@Valid @RequestBody BookRequestDTO newBook) {
+    public ResponseEntity<Void> createBook(@Valid @RequestBody BookCreateRequest newBook) {
         bookService.createBook(newBook);
         return ResponseEntity
             .status(HttpStatus.CREATED)
@@ -62,9 +63,10 @@ public class BookController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> updateBook(@PathVariable long id,
-        @Valid @RequestBody BookRequestDTO book) {
-        bookService.updateBook(id, book);
+    public ResponseEntity<Void> updateBook(
+        @PathVariable long id,
+        @Valid @RequestBody BookUpdateRequest bookDto) {
+        bookService.updateBook(id, bookDto);
         return ResponseEntity
             .status(HttpStatus.NO_CONTENT)
             .build();

@@ -2,7 +2,8 @@ package library.service.impl;
 
 import java.util.List;
 import org.springframework.stereotype.Service;
-import library.DTO.AuthorRequestDTO;
+import library.DTO.AuthorCreateRequest;
+import library.DTO.AuthorUpdateRequest;
 import library.exception.InternalServerException;
 import library.exception.NotFoundException;
 import library.model.Author;
@@ -37,11 +38,11 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     @Override
-    public void createAuthor(AuthorRequestDTO authorReq) {
+    public void createAuthor(AuthorCreateRequest authorDto) {
         var author = new Author(
-            authorReq.name(),
-            authorReq.cpf(),
-            authorReq.dateOfBirth());
+            authorDto.name(),
+            authorDto.cpf(),
+            authorDto.dateOfBirth());
 
         author = authorRepository.saveAndFlush(author);
 
@@ -50,12 +51,15 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     @Override
-    public void updateAuthor(long id, AuthorRequestDTO authorReq) {
+    public void updateAuthor(long id, AuthorUpdateRequest authorDto) {
         var author = getAuthor(id);
 
-        author.setName(authorReq.name());
-        author.setCpf(authorReq.cpf());
-        author.setDateOfBirth(authorReq.dateOfBirth());
+        if (authorDto.name() != null)
+            author.setName(authorDto.name());
+        if (authorDto.cpf() != null)
+            author.setCpf(authorDto.cpf());
+        if (authorDto.dateOfBirth() != null)
+            author.setDateOfBirth(authorDto.dateOfBirth());
 
         author = authorRepository.saveAndFlush(author);
         if (author == null)
@@ -64,6 +68,7 @@ public class AuthorServiceImpl implements AuthorService {
 
     @Override
     public void deleteAuthor(long id) {
+        getAuthor(id);
         authorRepository.deleteById(id);
     }
 

@@ -2,8 +2,8 @@ package library.service.impl;
 
 import java.util.List;
 import org.springframework.stereotype.Service;
-
-import library.DTO.BookRequestDTO;
+import library.DTO.BookCreateRequest;
+import library.DTO.BookUpdateRequest;
 import library.exception.InternalServerException;
 import library.exception.NotFoundException;
 import library.model.Book;
@@ -38,10 +38,10 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public void createBook(BookRequestDTO newBook) {
+    public void createBook(BookCreateRequest bookDto) {
         var book = new Book(
-            newBook.title(),
-            newBook.description());
+            bookDto.title(),
+            bookDto.description());
 
         book = bookRepository.saveAndFlush(book);
 
@@ -51,10 +51,13 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public void updateBook(long id, BookRequestDTO bookReq) {
+    public void updateBook(long id, BookUpdateRequest bookDto) {
         var book = getBook(id);
-        book.setTitle(bookReq.title());
-        book.setDescription(bookReq.description());
+
+        if (bookDto.title() != null)
+            book.setTitle(bookDto.title());
+        if (bookDto.description() != null)
+            book.setDescription(bookDto.description());
 
         book = bookRepository.saveAndFlush(book);
         if (book == null)
@@ -63,6 +66,7 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public void deleteBook(long id) {
+        getBook(id);
         bookRepository.deleteById(id);
     }
 

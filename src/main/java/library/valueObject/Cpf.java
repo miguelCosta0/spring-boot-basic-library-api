@@ -9,7 +9,7 @@ public class Cpf {
     private String rawCpf;
 
     public Cpf(String cpf) throws InvalidCpfException {
-        if (!isValid(cpf)) {
+        if (cpf == null || !isValid(cpf)) {
             throw new InvalidCpfException();
         }
         rawCpf = cleanCpf(cpf);

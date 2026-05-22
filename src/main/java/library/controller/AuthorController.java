@@ -17,8 +17,8 @@ import jakarta.validation.Valid;
 import library.DTO.AuthorCreateRequest;
 import library.DTO.AuthorResponse;
 import library.DTO.AuthorUpdateRequest;
+import library.DTO.BookResponse;
 import library.model.Author;
-import library.model.Book;
 import library.service.AuthorService;
 
 @Controller
@@ -82,16 +82,16 @@ public class AuthorController {
     }
 
     @GetMapping("/{id}/books")
-    public ResponseEntity<List<Long>> getAuthorBooks(@PathVariable long id) {
+    public ResponseEntity<List<BookResponse>> getAuthorBooks(@PathVariable long id) {
         var author = authorService.getAuthor(id);
-        List<Long> authorBooksIds = author
+        List<BookResponse> books = author
             .getBooks()
             .stream()
-            .map(Book::getId)
+            .map(BookResponse::fromBook)
             .collect(Collectors.toList());
 
         return ResponseEntity
             .status(HttpStatus.OK)
-            .body(authorBooksIds);
+            .body(books);
     }
 }

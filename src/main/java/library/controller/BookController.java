@@ -14,10 +14,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import jakarta.validation.Valid;
 
+import library.DTO.AuthorResponse;
 import library.DTO.BookCreateRequest;
 import library.DTO.BookResponse;
 import library.DTO.BookUpdateRequest;
-import library.model.Author;
 import library.model.Book;
 import library.service.BookService;
 
@@ -81,16 +81,16 @@ public class BookController {
     }
 
     @GetMapping("/{id}/authors")
-    public ResponseEntity<List<Long>> getBookAuthors(@PathVariable long id) {
+    public ResponseEntity<List<AuthorResponse>> getBookAuthors(@PathVariable long id) {
         var book = bookService.getBook(id);
-        List<Long> bookAuthorsIds = book
+        List<AuthorResponse> authors = book
             .getAuthors()
             .stream()
-            .map(Author::getId)
+            .map(AuthorResponse::fromAuthor)
             .collect(Collectors.toList());
 
         return ResponseEntity
             .status(HttpStatus.OK)
-            .body(bookAuthorsIds);
+            .body(authors);
     }
 }

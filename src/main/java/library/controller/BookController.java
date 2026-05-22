@@ -1,6 +1,7 @@
 package library.controller;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,10 +12,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-
-import com.fasterxml.jackson.annotation.JsonView;
-
 import jakarta.validation.Valid;
+
+import library.DTO.BookRequestDTO;
+import library.DTO.BookResponseDTO;
+import library.model.Author;
 import library.model.Book;
 import library.service.BookService;
 
@@ -29,66 +31,64 @@ public class BookController {
     }
 
     @GetMapping("")
-    @JsonView(Book.PublicView.class)
-    public ResponseEntity<List<Book>> getAllBooks() {
+    public ResponseEntity<List<BookResponseDTO>> getAllBooks() {
         List<Book> books = bookService.getAllBooks();
+        List<BookResponseDTO> booksResponse = books
+            .stream()
+            .map(BookResponseDTO::from)
+            .collect(Collectors.toList());
+
         return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(books);
+            .status(HttpStatus.OK)
+            .body(booksResponse);
     }
 
     @GetMapping("/{id}")
-    @JsonView(Book.PublicView.class)
-    public ResponseEntity<Book> getBook(@PathVariable long id) {
+    public ResponseEntity<BookResponseDTO> getBook(@PathVariable long id) {
         Book book = bookService.getBook(id);
+        BookResponseDTO bookResponse = BookResponseDTO.from(book);
+
         return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(book);
+            .status(HttpStatus.OK)
+            .body(bookResponse);
     }
 
     @PostMapping("")
-    public ResponseEntity<Void> createBook(@Valid @RequestBody Book newBook) {
+    public ResponseEntity<Void> createBook(@Valid @RequestBody BookRequestDTO newBook) {
         bookService.createBook(newBook);
         return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .build();
+            .status(HttpStatus.CREATED)
+            .build();
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> updateBook(@PathVariable long id, @Valid @RequestBody Book book) {
+    public ResponseEntity<Void> updateBook(@PathVariable long id,
+        @Valid @RequestBody BookRequestDTO book) {
         bookService.updateBook(id, book);
         return ResponseEntity
-                .status(HttpStatus.NO_CONTENT)
-                .build();
+            .status(HttpStatus.NO_CONTENT)
+            .build();
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBook(@PathVariable long id) {
         bookService.deleteBook(id);
         return ResponseEntity
-                .status(HttpStatus.NO_CONTENT)
-                .build();
+            .status(HttpStatus.NO_CONTENT)
+            .build();
     }
 
-    @PostMapping("/{bookId}/author/{authorId}")
-    public ResponseEntity<Void> linkBookAndAuthor(
-            @PathVariable long bookId,
-            @PathVariable long authorId) {
+    @GetMapping("/{id}/authors")
+    public ResponseEntity<List<Long>> getBookAuthors(@PathVariable long id) {
+        var book = bookService.getBook(id);
+        List<Long> bookAuthorsIds = book
+            .getAuthors()
+            .stream()
+            .map(Author::getId)
+            .collect(Collectors.toList());
 
-        bookService.linkBookAndAuthor(bookId, authorId);
         return ResponseEntity
-                .status(HttpStatus.NO_CONTENT)
-                .build();
-    }
-
-    @DeleteMapping("/{bookId}/author/{authorId}")
-    public ResponseEntity<Void> unlinkBookAndAuthor(
-            @PathVariable long bookId,
-            @PathVariable long authorId) {
-
-        bookService.unlinkBookAndAuthor(bookId, authorId);
-        return ResponseEntity
-                .status(HttpStatus.NO_CONTENT)
-                .build();
+            .status(HttpStatus.OK)
+            .body(bookAuthorsIds);
     }
 }

@@ -1,7 +1,7 @@
 package library.service;
 
 import java.util.List;
-
+import library.DTO.BookRequestDTO;
 import library.model.Book;
 
 public interface BookService {
@@ -10,14 +10,10 @@ public interface BookService {
 
     public Book getBook(long id);
 
-    public void createBook(Book newBook);
+    public void createBook(BookRequestDTO newBook);
 
-    public void updateBook(long id, Book book);
+    public void updateBook(long id, BookRequestDTO book);
 
     public void deleteBook(long id);
-
-    public void linkBookAndAuthor(long bookId, long authorId);
-
-    public void unlinkBookAndAuthor(long bookId, long authorId);
 
 }

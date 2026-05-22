@@ -1,7 +1,7 @@
 package library.service;
 
 import java.util.List;
-
+import library.DTO.AuthorRequestDTO;
 import library.model.Author;
 
 public interface AuthorService {
@@ -10,9 +10,9 @@ public interface AuthorService {
 
     public Author getAuthor(long id);
 
-    public void createAuthor(Author newAuthor);
+    public void createAuthor(AuthorRequestDTO newAuthor);
 
-    public void updateAuthor(long id, Author Author);
+    public void updateAuthor(long id, AuthorRequestDTO Author);
 
     public void deleteAuthor(long id);
 

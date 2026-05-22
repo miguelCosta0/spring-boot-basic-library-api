@@ -1,14 +1,12 @@
 package library.service.impl;
 
 import java.util.List;
-import java.util.Optional;
-
 import org.springframework.stereotype.Service;
 
+import library.DTO.BookRequestDTO;
 import library.exception.InternalServerException;
 import library.exception.NotFoundException;
 import library.model.Book;
-import library.repository.AuthorRepository;
 import library.repository.BookRepository;
 import library.service.BookService;
 
@@ -16,16 +14,14 @@ import library.service.BookService;
 public class BookServiceImpl implements BookService {
 
     private final BookRepository bookRepository;
-    private final AuthorRepository authorRepository;
 
-    public BookServiceImpl(BookRepository bookRepository, AuthorRepository authorRepository) {
+    public BookServiceImpl(BookRepository bookRepository) {
         this.bookRepository = bookRepository;
-        this.authorRepository = authorRepository;
     }
 
     @Override
     public List<Book> getAllBooks() {
-        List<Book> books = bookRepository.getAllBooks();
+        List<Book> books = bookRepository.findAll();
 
         if (books.size() == 0)
             throw new NotFoundException("There are no books registered");
@@ -35,59 +31,39 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public Book getBook(long id) {
-        Optional<Book> book = bookRepository.getBook(id);
-        return book
-                .orElseThrow(() -> new NotFoundException("Book not found"));
+        var book = bookRepository
+            .findById(id)
+            .orElseThrow(() -> new NotFoundException("Book not found"));
+        return book;
     }
 
     @Override
-    public void createBook(Book newBook) {
-        int res = bookRepository.createBook(newBook);
+    public void createBook(BookRequestDTO newBook) {
+        var book = new Book(
+            newBook.title(),
+            newBook.description());
 
-        if (res == 0)
+        book = bookRepository.saveAndFlush(book);
+
+        if (book == null)
             throw new InternalServerException("Book could not be created");
 
     }
 
     @Override
-    public void updateBook(long id, Book book) {
-        getBook(id);
-        int res = bookRepository.updateBook(id, book);
-        if (res == 0)
+    public void updateBook(long id, BookRequestDTO bookReq) {
+        var book = getBook(id);
+        book.setTitle(bookReq.title());
+        book.setDescription(bookReq.description());
+
+        book = bookRepository.saveAndFlush(book);
+        if (book == null)
             throw new InternalServerException("Book could not be updated");
     }
 
     @Override
     public void deleteBook(long id) {
-        getBook(id);
-        int res = bookRepository.deleteBook(id);
-        if (res == 0)
-            throw new InternalServerException("Book could not be deleted");
-    }
-
-    @Override
-    public void linkBookAndAuthor(long bookId, long authorId) {
-        if (bookRepository.getBook(bookId).isEmpty())
-            throw new NotFoundException("Book not found");
-        if (authorRepository.getAuthor(authorId).isEmpty())
-            throw new NotFoundException("Author not found");
-
-        int res = bookRepository.linkBookAndAuthor(bookId, authorId);
-        if (res == 0)
-            throw new InternalServerException("Failed to map book-author relationship");
-
-    }
-
-    @Override
-    public void unlinkBookAndAuthor(long bookId, long authorId) {
-        if (bookRepository.getBook(bookId).isEmpty())
-            throw new NotFoundException("Book not found");
-        if (authorRepository.getAuthor(authorId).isEmpty())
-            throw new NotFoundException("Author not found");
-
-        int res = bookRepository.unlinkBookAndAuthor(bookId, authorId);
-        if (res == 0)
-            throw new InternalServerException("Failed to destroy book-author relationship");
+        bookRepository.deleteById(id);
     }
 
 }

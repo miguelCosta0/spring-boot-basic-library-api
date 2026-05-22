@@ -1,10 +1,8 @@
 package library.service.impl;
 
 import java.util.List;
-import java.util.Optional;
-
 import org.springframework.stereotype.Service;
-
+import library.DTO.AuthorRequestDTO;
 import library.exception.InternalServerException;
 import library.exception.NotFoundException;
 import library.model.Author;
@@ -22,7 +20,7 @@ public class AuthorServiceImpl implements AuthorService {
 
     @Override
     public List<Author> getAllAuthors() {
-        List<Author> authors = authorRepository.getAllAuthors();
+        List<Author> authors = authorRepository.findAll();
 
         if (authors.size() == 0)
             throw new NotFoundException("There are no authors registered");
@@ -32,34 +30,41 @@ public class AuthorServiceImpl implements AuthorService {
 
     @Override
     public Author getAuthor(long id) {
-        Optional<Author> author = authorRepository.getAuthor(id);
-        return author
-                .orElseThrow(() -> new NotFoundException("There is no author with such id"));
+        var author = authorRepository
+            .findById(id)
+            .orElseThrow(() -> new NotFoundException("There is no author with such id"));
+        return author;
     }
 
     @Override
-    public void createAuthor(Author newAuthor) {
-        int res = authorRepository.createAuthor(newAuthor);
+    public void createAuthor(AuthorRequestDTO authorReq) {
+        var author = new Author(
+            authorReq.name(),
+            authorReq.cpf(),
+            authorReq.dateOfBirth());
 
-        if (res == 0)
+        author = authorRepository.saveAndFlush(author);
+
+        if (author == null)
             throw new InternalServerException("Author could not be created");
-
     }
 
     @Override
-    public void updateAuthor(long id, Author author) {
-        getAuthor(id);
-        int res = authorRepository.updateAuthor(id, author);
-        if (res == 0)
+    public void updateAuthor(long id, AuthorRequestDTO authorReq) {
+        var author = getAuthor(id);
+
+        author.setName(authorReq.name());
+        author.setCpf(authorReq.cpf());
+        author.setDateOfBirth(authorReq.dateOfBirth());
+
+        author = authorRepository.saveAndFlush(author);
+        if (author == null)
             throw new InternalServerException("Author could not be updated");
     }
 
     @Override
     public void deleteAuthor(long id) {
-        getAuthor(id);
-        int res = authorRepository.deleteAuthor(id);
-        if (res == 0)
-            throw new InternalServerException("Author could not be deleted");
+        authorRepository.deleteById(id);
     }
 
 }

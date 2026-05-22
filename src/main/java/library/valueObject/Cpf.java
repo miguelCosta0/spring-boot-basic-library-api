@@ -8,8 +8,7 @@ public class Cpf {
     private static final String cpfRegex = "^(\\d{3}\\.\\d{3}\\.\\d{3}-\\d{2}|\\d{11})$";
     private String rawCpf;
 
-    public Cpf(String cpf)
-            throws InvalidCpfException {
+    public Cpf(String cpf) throws InvalidCpfException {
         if (!isValid(cpf)) {
             throw new InvalidCpfException();
         }
@@ -27,15 +26,15 @@ public class Cpf {
         rawCpf = cleanCpf(cpf);
 
         if (rawCpf.equals("00000000000") ||
-                rawCpf.equals("11111111111") ||
-                rawCpf.equals("22222222222") ||
-                rawCpf.equals("33333333333") ||
-                rawCpf.equals("44444444444") ||
-                rawCpf.equals("55555555555") ||
-                rawCpf.equals("66666666666") ||
-                rawCpf.equals("77777777777") ||
-                rawCpf.equals("88888888888") ||
-                rawCpf.equals("99999999999")) {
+            rawCpf.equals("11111111111") ||
+            rawCpf.equals("22222222222") ||
+            rawCpf.equals("33333333333") ||
+            rawCpf.equals("44444444444") ||
+            rawCpf.equals("55555555555") ||
+            rawCpf.equals("66666666666") ||
+            rawCpf.equals("77777777777") ||
+            rawCpf.equals("88888888888") ||
+            rawCpf.equals("99999999999")) {
             return false;
         }
 
@@ -67,9 +66,9 @@ public class Cpf {
 
     public String getFormattedCpf() {
         return (rawCpf.substring(0, 3) + "." +
-                rawCpf.substring(3, 6) + "." +
-                rawCpf.substring(6, 9) + "-" +
-                rawCpf.substring(9));
+            rawCpf.substring(3, 6) + "." +
+            rawCpf.substring(6, 9) + "-" +
+            rawCpf.substring(9));
     }
 
     @Override
